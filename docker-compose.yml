@@ -4,7 +4,7 @@ services:
     container_name: hexa_redis
     restart: unless-stopped
     ports:
-      - "6379:6379"
+      - "${REDIS_PORT}:6379"
     volumes:
       - redis_data:/data
     command: redis-server --appendonly yes
@@ -16,7 +16,7 @@ services:
     container_name: hexa_redis_commander
     restart: unless-stopped
     ports:
-      - "8081:8081"
+      - "${REDIS_COMMANDER_PORT}:8081"
     environment:
       - REDIS_HOSTS=production:redis:6379
     depends_on:
