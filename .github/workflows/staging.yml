@@ -14,6 +14,18 @@ jobs:
   deploy:
     name: Deploy to Staging Server
     runs-on: ubuntu-latest
+
+    env:
+      APP_PORT: ${{ vars.APP_PORT }}
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      SERVER_HOST: ${{ vars.SERVER_HOST }}
+      SERVER_USER: ${{ vars.SERVER_USER }}
+      ENV_PASSPHRASE: ${{ secrets.ENV_PASSPHRASE }}
+      SECTS_BUCKET_NAME: ${{ vars.SECTS_BUCKET_NAME }}
+      SECTS_REGION: ${{ vars.SECTS_REGION }}
+      SECTS_ACCESS_KEY_ID: ${{ secrets.SECTS_ACCESS_KEY_ID }}
+      SECTS_ACCESS_KEY_SECRET: ${{ secrets.SECTS_ACCESS_KEY_SECRET }}
+      SECTS_ENDPOINT_URL: ${{ vars.SECTS_ENDPOINT_URL }}
     
     steps:
       - name: Checkout repository
@@ -28,12 +40,12 @@ jobs:
           service_name: hexa
           service_type: infra
           file_path: .env
-          encryption_key: ${{ secrets.ENV_PASSPHRASE }}
-          bucket_name: ${{ vars.SECTS_BUCKET_NAME }}
-          region: ${{ vars.SECTS_REGION }}
-          access_key_id: ${{ secrets.SECTS_ACCESS_KEY_ID }}
-          secret_access_key: ${{ secrets.SECTS_ACCESS_KEY_SECRET }}
-          endpoint_url: ${{ vars.SECTS_ENDPOINT_URL }}
+          encryption_key: ${{ env.ENV_PASSPHRASE }}
+          bucket_name: ${{ env.SECTS_BUCKET_NAME }}
+          region: ${{ env.SECTS_REGION }}
+          access_key_id: ${{ env.SECTS_ACCESS_KEY_ID }}
+          secret_access_key: ${{ env.SECTS_ACCESS_KEY_SECRET }}
+          endpoint_url: ${{ env.SECTS_ENDPOINT_URL }}
 
       - name: Upload files to server
         uses: appleboy/scp-action@v0.1.3
