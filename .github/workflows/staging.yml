@@ -57,7 +57,7 @@ jobs:
           source: "${{ steps.s3-secrets-sync.outputs.env_file_path }},docker-compose.yml"
           target: ${{ env.BASE_DIR }}
 
-      - name: Move needed files
+      - name: Deploy service
         uses: appleboy/ssh-action@v0.1.9
         with:
           host: ${{ env.SERVER_HOST }}
@@ -65,14 +65,17 @@ jobs:
           key: ${{ env.SSH_PRIVATE_KEY }}
           script: |
             BASE_DIR="${{ env.BASE_DIR }}"
+            
             mkdir -p $BASE_DIR
             mv ${{ env.BASE_DIR }}/github/workspace/.env $BASE_DIR/.env
 
             cd $BASE_DIR
-            docker compose pull
-            docker compose down
-            docker compose up -d
-            docker compose ps
+            docker compose -p hexa pull
+            docker compose -p hexa down
+            docker compose -p hexa up -d
+            docker compose -p hexa ps
 
             echo "Deployment completed successfully"
+
+            rm -rf $BASE_DIR
 
