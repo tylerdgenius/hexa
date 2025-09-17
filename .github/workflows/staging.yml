@@ -26,6 +26,7 @@ jobs:
       SECTS_ACCESS_KEY_ID: ${{ secrets.SECTS_ACCESS_KEY_ID }}
       SECTS_ACCESS_KEY_SECRET: ${{ secrets.SECTS_ACCESS_KEY_SECRET }}
       SECTS_ENDPOINT_URL: ${{ vars.SECTS_ENDPOINT_URL }}
+      BASE_DIR: "/root/hexa-deploy"
     
     steps:
       - name: Checkout repository
@@ -54,31 +55,24 @@ jobs:
           username: ${{ env.SERVER_USER }}
           key: ${{ env.SSH_PRIVATE_KEY }}
           source: "${{ steps.s3-secrets-sync.outputs.env_file_path }},docker-compose.yml"
-          target: "/root/hexa-deploy"
+          target: ${{ env.BASE_DIR }}
 
-    #   - name: Move needed files
-    #     uses: appleboy/ssh-action@v0.1.9
-    #     with:
-    #       host: ${{ env.SERVER_HOST }}
-    #       username: ${{ env.SERVER_USER }}
-    #       key: ${{ env.SSH_PRIVATE_KEY }}
-    #       script: |
-    #         BASE_DIR="/root/hexa-deploy"
-    #         mkdir -p $BASE_DIR
-    #         mv /root/github/workspace/docker-compose.yml $BASE_DIR/docker-compose.yml
-    #         mv /root/.env $BASE_DIR/.env
-            
-    #         # Make test script executable if it exists
-    #         if [ -f /root/test-redis.sh ]; then
-    #           mv /root/test-redis.sh $BASE_DIR/test-redis.sh
-    #           chmod +x $BASE_DIR/test-redis.sh
-    #         fi
+      - name: Move needed files
+        uses: appleboy/ssh-action@v0.1.9
+        with:
+          host: ${{ env.SERVER_HOST }}
+          username: ${{ env.SERVER_USER }}
+          key: ${{ env.SSH_PRIVATE_KEY }}
+          script: |
+            BASE_DIR="${{ env.BASE_DIR }}"
+            mkdir -p $BASE_DIR
+            mv ${{ env.BASE_DIR }}/github/workspace/.env $BASE_DIR/.env
 
-    #         cd $BASE_DIR
-    #         docker compose pull
-    #         docker compose down
-    #         docker compose up -d
-    #         docker compose ps
+            cd $BASE_DIR
+            docker compose pull
+            docker compose down
+            docker compose up -d
+            docker compose ps
 
-    #         echo "Deployment completed successfully"
+            echo "Deployment completed successfully"
 
