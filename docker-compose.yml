@@ -1,0 +1,33 @@
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: hexa_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    networks:
+      - hexa_network
+
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: hexa_redis_commander
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+    environment:
+      - REDIS_HOSTS=production:redis:6379
+    depends_on:
+      - redis
+    networks:
+      - hexa_network
+
+volumes:
+  redis_data:
+    driver: local
+
+networks:
+  hexa_network:
+    driver: bridge
